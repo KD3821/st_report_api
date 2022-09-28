@@ -23,7 +23,6 @@ class Shift(models.Model):
 
 
 
-
 class Car(models.Model):
     plate = CharField(max_length=200)
     rental_rate = IntegerField(default=3000)
@@ -82,4 +81,3 @@ class PlanShift(models.Model):
 
     def __str__(self):
         return f'{self.plan_day}-{self.plan_car}'
-

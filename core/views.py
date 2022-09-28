@@ -1,7 +1,7 @@
 from rest_framework.generics import ListAPIView
 from rest_framework.viewsets import ModelViewSet
 from core.models import Week, Shift, Car, Driver, ExtraTax, Ride
-from core.serializers import WeekSerializer, ShiftSerializer, CarSerializer, DriverSerializer, ExtraTaxSerializer, RideSerializer
+from core.serializers import WeekSerializer, ShiftSerializer, CarSerializer, DriverSerializer, ExtraTaxSerializer, WriteRideSerializer, ReadRideSerializer
 
 
 class WeekListAPIView(ListAPIView):
@@ -22,13 +22,19 @@ class CarModelViewSet(ModelViewSet):
 class DriverModelViewSet(ModelViewSet):
     queryset = Driver.objects.all()
     serializer_class = DriverSerializer
+    pagination_class = None
 
 
 class ExtraTaxModelViewSet(ModelViewSet):
     queryset = ExtraTax.objects.all()
-    serializer_class = DriverSerializer
+    serializer_class = ExtraTaxSerializer
 
 
 class RideModelViewSet(ModelViewSet):
-    queryset = Ride.objects.all()
-    serializer_class = RideSerializer
+    # queryset = Ride.objects.all()
+    queryset = Ride.objects.select_related("driver", "car", "shift", "extra_tax")
+
+    def get_serializer_class(self):
+        if self.action in ("list", "retrieve"):
+            return ReadRideSerializer
+        return WriteRideSerializer
