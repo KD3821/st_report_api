@@ -1,5 +1,6 @@
 from django.urls import path
 from rest_framework import routers
+from rest_framework.authtoken.views import obtain_auth_token
 from core import views
 
 
@@ -12,5 +13,6 @@ router.register(r'extratax', views.ExtraTaxModelViewSet, basename='extratax')
 router.register(r'rides', views.RideModelViewSet, basename='rides')
 
 urlpatterns = [
+    path('login/', obtain_auth_token, name='obtain-auth-token'),
     path('weeks/', views.WeekListAPIView.as_view(), name='weeks'),
 ] + router.urls

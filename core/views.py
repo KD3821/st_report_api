@@ -1,6 +1,7 @@
 from rest_framework.generics import ListAPIView
 from rest_framework.viewsets import ModelViewSet
 from rest_framework.filters import SearchFilter, OrderingFilter
+from rest_framework.permissions import IsAuthenticated
 from django_filters.rest_framework import DjangoFilterBackend
 from core.models import Week, Shift, Car, Driver, ExtraTax, Ride
 from core.serializers import WeekSerializer, ShiftSerializer, CarSerializer, DriverSerializer, ExtraTaxSerializer, WriteRideSerializer, ReadRideSerializer
@@ -17,14 +18,26 @@ class ShiftModelViewSet(ModelViewSet):
 
 
 class CarModelViewSet(ModelViewSet):
-    queryset = Car.objects.all()
+    permission_classes = (IsAuthenticated,)
     serializer_class = CarSerializer
+
+    def get_queryset(self):
+        return Car.objects.select_related("user").filter(user=self.request.user)
+
+    # def perform_create(self, serializer):
+    #     serializer.save(user=self.request.user)
 
 
 class DriverModelViewSet(ModelViewSet):
-    queryset = Driver.objects.all()
+    permission_classes = (IsAuthenticated,)
     serializer_class = DriverSerializer
     pagination_class = None
+
+    def get_queryset(self):
+        return Driver.objects.select_related("user").filter(user=self.request.user)
+
+    # def perform_create(self, serializer):
+    #     serializer.save(user=self.request.user)
 
 
 class ExtraTaxModelViewSet(ModelViewSet):
@@ -33,13 +46,19 @@ class ExtraTaxModelViewSet(ModelViewSet):
 
 
 class RideModelViewSet(ModelViewSet):
-    queryset = Ride.objects.select_related("driver", "car", "shift", "extra_tax")
+    permission_classes = (IsAuthenticated,)
     filter_backends = (SearchFilter, OrderingFilter, DjangoFilterBackend)
     search_fields = ("driver__name",)
     ordering_fields = ("shift", "number")
     filterset_fields = ("car__plate",)
 
+    def get_queryset(self):
+        return Ride.objects.select_related("driver", "car", "shift", "extra_tax", "user").filter(user=self.request.user)
+
     def get_serializer_class(self):
         if self.action in ("list", "retrieve"):
             return ReadRideSerializer
         return WriteRideSerializer
+
+    # def perform_create(self, serializer):
+    #     serializer.save(user=self.request.user)

@@ -1,5 +1,13 @@
 from rest_framework import serializers
+from django.contrib.auth.models import User
 from core.models import Week, Shift, Car, Driver, ExtraTax, Ride, PlanShift
+
+
+class ReadUserSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = User
+        fields = ('id', 'username', 'first_name')
+        read_only_fields = fields
 
 
 class WeekSerializer(serializers.ModelSerializer):
@@ -15,15 +23,19 @@ class ShiftSerializer(serializers.ModelSerializer):
 
 
 class CarSerializer(serializers.ModelSerializer):
+    user = serializers.HiddenField(default=serializers.CurrentUserDefault())
+
     class Meta:
         model = Car
-        fields = ('id', 'plate',)
+        fields = ('id', 'plate', 'user',)
 
 
 class DriverSerializer(serializers.ModelSerializer):
+    user = serializers.HiddenField(default=serializers.CurrentUserDefault())
+
     class Meta:
         model = Driver
-        fields = ('id', 'name',)
+        fields = ('id', 'name', 'user',)
 
 
 class ExtraTaxSerializer(serializers.ModelSerializer):
@@ -33,6 +45,7 @@ class ExtraTaxSerializer(serializers.ModelSerializer):
 
 
 class WriteRideSerializer(serializers.ModelSerializer):
+    user = serializers.HiddenField(default=serializers.CurrentUserDefault())
     driver = serializers.SlugRelatedField(slug_field="name", queryset=Driver.objects.all())
     car = serializers.SlugRelatedField(slug_field="plate", queryset=Car.objects.all())
     shift = serializers.SlugRelatedField(slug_field="date", queryset=Shift.objects.all())
@@ -41,6 +54,7 @@ class WriteRideSerializer(serializers.ModelSerializer):
     class Meta:
         model = Ride
         fields = (
+            'user',
             'number',
             'driver',
             'car',
@@ -62,11 +76,13 @@ class ReadRideSerializer(serializers.ModelSerializer):
     car = serializers.SlugRelatedField(slug_field="plate", queryset=Car.objects.all())
     shift = ShiftSerializer()
     extra_tax = ExtraTaxSerializer()
+    user = ReadUserSerializer()
 
     class Meta:
         model = Ride
         fields = (
             'id',
+            'user',
             'number',
             'driver',
             'car',
