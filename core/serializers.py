@@ -70,6 +70,12 @@ class WriteRideSerializer(serializers.ModelSerializer):
             'comment'
         )
 
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        user = self.context['request'].user
+        # self.fields['car'].queryset = Car.objects.filter(user=user)
+        self.fields['car'].queryset = user.cars.all()   # related name from Car model
+
 
 class ReadRideSerializer(serializers.ModelSerializer):
     driver = serializers.SlugRelatedField(slug_field="name", queryset=Driver.objects.all())
