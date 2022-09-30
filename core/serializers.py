@@ -74,7 +74,7 @@ class WriteRideSerializer(serializers.ModelSerializer):
         super().__init__(*args, **kwargs)
         user = self.context['request'].user
         # self.fields['car'].queryset = Car.objects.filter(user=user)
-        self.fields['car'].queryset = user.cars.all()   # related name from Car model
+        self.fields['car'].queryset = user.cars.all()   # 'cars' is related name_from Car model
 
 
 class ReadRideSerializer(serializers.ModelSerializer):
