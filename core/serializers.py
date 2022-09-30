@@ -1,6 +1,7 @@
 from rest_framework import serializers
 from django.contrib.auth.models import User
 from core.models import Week, Shift, Car, Driver, ExtraTax, Ride, PlanShift
+from core.reports import ReportParams
 
 
 class ReadUserSerializer(serializers.ModelSerializer):
@@ -104,6 +105,23 @@ class ReadRideSerializer(serializers.ModelSerializer):
             'comment'
         )
         read_only_fields = fields
+
+
+class ReportRidesSerializer(serializers.Serializer):
+    shift = ShiftSerializer()
+    car = CarSerializer()
+    total = serializers.IntegerField()
+    count = serializers.IntegerField()
+    avg = serializers.DecimalField(max_digits=15, decimal_places=2)
+
+
+class ReportParamsSerializer(serializers.Serializer):
+    report_date = serializers.DateField()
+    report_car = serializers.CharField()
+    user = serializers.HiddenField(default=serializers.CurrentUserDefault())
+
+    def create(self, validated_data):
+        return ReportParams(**validated_data)
 
 
 class PlanShiftSerializer(serializers.ModelSerializer):

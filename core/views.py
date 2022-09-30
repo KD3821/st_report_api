@@ -1,10 +1,13 @@
 from rest_framework.generics import ListAPIView
+from rest_framework.views import APIView
 from rest_framework.viewsets import ModelViewSet
 from rest_framework.filters import SearchFilter, OrderingFilter
 from rest_framework.permissions import IsAuthenticated
+from rest_framework.response import Response
 from django_filters.rest_framework import DjangoFilterBackend
 from core.models import Week, Shift, Car, Driver, ExtraTax, Ride
-from core.serializers import WeekSerializer, ShiftSerializer, CarSerializer, DriverSerializer, ExtraTaxSerializer, WriteRideSerializer, ReadRideSerializer
+from core.serializers import WeekSerializer, ShiftSerializer, CarSerializer, DriverSerializer, ExtraTaxSerializer, WriteRideSerializer, ReadRideSerializer, ReportRidesSerializer, ReportParamsSerializer
+from core.reports import rides_report
 
 
 class WeekListAPIView(ListAPIView):
@@ -62,3 +65,15 @@ class RideModelViewSet(ModelViewSet):
 
     # def perform_create(self, serializer):
     #     serializer.save(user=self.request.user)
+
+
+class RideReportAPIView(APIView):
+    permission_classes = (IsAuthenticated,)
+
+    def get(self, request):
+        params_serializer = ReportParamsSerializer(data=request.GET, context={"request": request})
+        params_serializer.is_valid(raise_exception=True)
+        params = params_serializer.save()
+        data = rides_report(params)
+        serializer = ReportRidesSerializer(instance=data, many=True)
+        return Response(data=serializer.data)

@@ -15,4 +15,5 @@ router.register(r'rides', views.RideModelViewSet, basename='rides')
 urlpatterns = [
     path('login/', obtain_auth_token, name='obtain-auth-token'),
     path('weeks/', views.WeekListAPIView.as_view(), name='weeks'),
+    path('report/', views.RideReportAPIView.as_view(), name='report'),
 ] + router.urls
