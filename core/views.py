@@ -5,6 +5,8 @@ from rest_framework.filters import SearchFilter, OrderingFilter
 from rest_framework.permissions import IsAuthenticated
 from rest_framework.response import Response
 from django_filters.rest_framework import DjangoFilterBackend
+from rest_framework.renderers import JSONRenderer
+from rest_framework_xml.renderers import XMLRenderer
 from core.models import Week, Shift, Car, Driver, ExtraTax, Ride
 from core.serializers import WeekSerializer, ShiftSerializer, CarSerializer, DriverSerializer, ExtraTaxSerializer, WriteRideSerializer, ReadRideSerializer, ReportRidesSerializer, ReportParamsSerializer
 from core.reports import rides_report
@@ -18,6 +20,7 @@ class WeekListAPIView(ListAPIView):
 class ShiftModelViewSet(ModelViewSet):
     queryset = Shift.objects.all()
     serializer_class = ShiftSerializer
+    renderer_classes = (JSONRenderer, XMLRenderer,)
 
 
 class CarModelViewSet(ModelViewSet):
