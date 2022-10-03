@@ -85,3 +85,10 @@ class PlanShift(models.Model):
 
     def __str__(self):
         return f'{self.plan_day}-{self.plan_car}'
+
+
+class AllowList(models.Model):
+    ip_address = models.GenericIPAddressField()
+
+    def __str__(self):
+        return self.ip_address

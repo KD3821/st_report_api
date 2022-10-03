@@ -2,7 +2,7 @@ from rest_framework.generics import ListAPIView
 from rest_framework.views import APIView
 from rest_framework.viewsets import ModelViewSet
 from rest_framework.filters import SearchFilter, OrderingFilter
-from rest_framework.permissions import IsAuthenticated
+from rest_framework.permissions import IsAuthenticated, AllowAny, IsAuthenticatedOrReadOnly, DjangoModelPermissions
 from rest_framework.response import Response
 from django_filters.rest_framework import DjangoFilterBackend
 from rest_framework.renderers import JSONRenderer
@@ -10,21 +10,24 @@ from rest_framework_xml.renderers import XMLRenderer
 from core.models import Week, Shift, Car, Driver, ExtraTax, Ride
 from core.serializers import WeekSerializer, ShiftSerializer, CarSerializer, DriverSerializer, ExtraTaxSerializer, WriteRideSerializer, ReadRideSerializer, ReportRidesSerializer, ReportParamsSerializer
 from core.reports import rides_report
+from core.permissions import IsAdminOrReadOnly, AllowListPermission
 
 
 class WeekListAPIView(ListAPIView):
+    permission_classes = (IsAdminOrReadOnly,)
     queryset = Week.objects.all()
     serializer_class = WeekSerializer
 
 
 class ShiftModelViewSet(ModelViewSet):
+    permission_classes = (IsAdminOrReadOnly,)
     queryset = Shift.objects.all()
     serializer_class = ShiftSerializer
     renderer_classes = (JSONRenderer, XMLRenderer,)
 
 
 class CarModelViewSet(ModelViewSet):
-    permission_classes = (IsAuthenticated,)
+    # permission_classes = (IsAuthenticated,)
     serializer_class = CarSerializer
 
     def get_queryset(self):
@@ -35,7 +38,7 @@ class CarModelViewSet(ModelViewSet):
 
 
 class DriverModelViewSet(ModelViewSet):
-    permission_classes = (IsAuthenticated,)
+    # permission_classes = (IsAuthenticated,)
     serializer_class = DriverSerializer
     pagination_class = None
 
@@ -47,12 +50,13 @@ class DriverModelViewSet(ModelViewSet):
 
 
 class ExtraTaxModelViewSet(ModelViewSet):
+    permission_classes = (DjangoModelPermissions & AllowListPermission,)   # or you can use '|' for 'OR'
     queryset = ExtraTax.objects.all()
     serializer_class = ExtraTaxSerializer
 
 
 class RideModelViewSet(ModelViewSet):
-    permission_classes = (IsAuthenticated,)
+    # permission_classes = (IsAuthenticated,)
     filter_backends = (SearchFilter, OrderingFilter, DjangoFilterBackend)
     search_fields = ("driver__name",)
     ordering_fields = ("shift", "number")
@@ -71,7 +75,7 @@ class RideModelViewSet(ModelViewSet):
 
 
 class RideReportAPIView(APIView):
-    permission_classes = (IsAuthenticated,)
+    # permission_classes = (IsAuthenticated,)
 
     def get(self, request):
         params_serializer = ReportParamsSerializer(data=request.GET, context={"request": request})
