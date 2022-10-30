@@ -74,8 +74,8 @@ class WriteRideSerializer(serializers.ModelSerializer):
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
         user = self.context['request'].user
-        # self.fields['car'].queryset = Car.objects.filter(user=user)
-        self.fields['car'].queryset = user.cars.all()   # 'cars' is related name_from Car model
+        self.fields['car'].queryset = Car.objects.filter(user=user)
+        # self.fields['car'].queryset = user.cars.all()   # 'cars' is related name_from Car model
         self.fields['driver'].queryset = user.drivers.all() # 'drivers' is related_name from Driver model
 
 
@@ -128,4 +128,30 @@ class ReportParamsSerializer(serializers.Serializer):
 class PlanShiftSerializer(serializers.ModelSerializer):
     class Meta:
         model = PlanShift
+        fields = '__all__'
+
+
+class RegisterSerializer(serializers.ModelSerializer):
+    password2 = serializers.CharField(write_only=True)
+
+    class Meta:
+        model = User
+        fields = ('username', 'password', 'password2')
+        extra_kwargs = {'password': {'write_only': True}}
+
+    def create(self, validated_data):
+        username = validated_data['username']
+        password = validated_data['password']
+        password2 = validated_data['password2']
+        if password != password2:
+            raise serializers.ValidationError({"password": "Пароли не совпадают!"})
+        user = User(username=username)
+        user.set_password(password)
+        user.save()
+        return user
+
+
+class UserSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = User
         fields = '__all__'
