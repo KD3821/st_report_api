@@ -4,6 +4,13 @@ from core.models import Week, Shift, Car, Driver, ExtraTax, Ride, PlanShift
 from core.reports import ReportParams
 
 
+
+class UserSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = User
+        fields = '__all__'
+
+
 class ReadUserSerializer(serializers.ModelSerializer):
     class Meta:
         model = User
@@ -76,7 +83,7 @@ class WriteRideSerializer(serializers.ModelSerializer):
         user = self.context['request'].user
         self.fields['car'].queryset = Car.objects.filter(user=user)
         # self.fields['car'].queryset = user.cars.all()   # 'cars' is related name_from Car model
-        self.fields['driver'].queryset = user.drivers.all() # 'drivers' is related_name from Driver model
+        self.fields['driver'].queryset = user.drivers.all()  # 'drivers' is related_name from Driver model
 
 
 class ReadRideSerializer(serializers.ModelSerializer):
@@ -85,6 +92,7 @@ class ReadRideSerializer(serializers.ModelSerializer):
     shift = ShiftSerializer()
     extra_tax = ExtraTaxSerializer()
     user = ReadUserSerializer()
+    # user = UserSerializer()
 
     class Meta:
         model = Ride
@@ -149,9 +157,3 @@ class RegisterSerializer(serializers.ModelSerializer):
         user.set_password(password)
         user.save()
         return user
-
-
-class UserSerializer(serializers.ModelSerializer):
-    class Meta:
-        model = User
-        fields = '__all__'

@@ -57,15 +57,16 @@ class ExtraTaxModelViewSet(ModelViewSet):
 
 
 class RideModelViewSet(ModelViewSet):
-    # permission_classes = (IsAuthenticated,)
+    permission_classes = (IsAuthenticated,)
     filter_backends = (SearchFilter, OrderingFilter, DjangoFilterBackend)
     search_fields = ("driver__name", "number", "car__plate")
     ordering_fields = ("shift", "number")
     filterset_fields = ("car__plate", "shift__week")
 
     def get_queryset(self):
-        # return Ride.objects.select_related("driver", "car", "shift", "extra_tax", "user").filter(user=self.request.user)
-        return Ride.objects.select_related("driver", "car", "shift", "extra_tax", "user")
+        print(self.request.user)
+        return Ride.objects.select_related("driver", "car", "shift", "extra_tax", "user").filter(user=self.request.user)
+        # return Ride.objects.select_related("driver", "car", "shift", "extra_tax", "user")
 
     def get_serializer_class(self):
         if self.action in ("list", "retrieve"):
